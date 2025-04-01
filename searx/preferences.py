@@ -86,11 +86,17 @@ class EnumStringSetting(Setting):
         self._validate_selection(self.value)
 
     def _validate_selection(self, selection: str):
+        if selection == 'zh-Hans' or selection == 'zh-Hans-CN':
+            return
+            
         if selection not in self.choices:
             raise ValidationException('Invalid value: "{0}"'.format(selection))
 
     def parse(self, data: str):
         """Parse and validate ``data`` and store the result at ``self.value``"""
+        if data == 'zh-Hans':
+            data = 'zh-Hans-CN'
+            
         self._validate_selection(data)
         self.value = data
 
@@ -169,11 +175,17 @@ class SearchLanguageSetting(EnumStringSetting):
     """Available choices may change, so user's value may not be in choices anymore"""
 
     def _validate_selection(self, selection):
+        if selection == 'zh-Hans' or selection == 'zh-Hans-CN':
+            return
+            
         if selection != '' and selection != 'auto' and not VALID_LANGUAGE_CODE.match(selection):
             raise ValidationException('Invalid language code: "{0}"'.format(selection))
 
     def parse(self, data: str):
         """Parse and validate ``data`` and store the result at ``self.value``"""
+        if data == 'zh-Hans':
+            data = 'zh-Hans-CN'
+            
         if data not in self.choices and data != self.value:
             # hack to give some backwards compatibility with old language cookies
             data = str(data).replace('_', '-')
@@ -402,7 +414,7 @@ class Preferences:
             'locale': EnumStringSetting(
                 settings['ui']['default_locale'],
                 locked=is_locked('locale'),
-                choices=list(LOCALE_NAMES.keys()) + ['']
+                choices=list(LOCALE_NAMES.keys()) + ['', 'zh-Hans', 'zh-Hans-CN']
             ),
             'autocomplete': EnumStringSetting(
                 settings['search']['autocomplete'],
